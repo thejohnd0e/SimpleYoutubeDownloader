@@ -38,8 +38,9 @@ app.secret_key = 'your-secret-key-here'
 DOWNLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
 
 # Logging setup
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.CRITICAL)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.CRITICAL)
 
 # Global dictionary for storing download progress
 download_progress = {}
