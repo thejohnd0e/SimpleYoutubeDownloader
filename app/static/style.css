@@ -1,0 +1,181 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #000000;
+    color: #f5f5f7;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #0071e3, #00c7be);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Remove these classes as they're no longer needed */
+.instructions {
+    /* removing */
+}
+
+.instructions h3 {
+    /* removing */
+}
+
+.instructions ol {
+    /* removing */
+}
+
+.instructions li {
+    /* removing */
+}
+
+.note {
+    /* removing */
+}
+
+.input-section {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    justify-content: flex-end;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 15px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background: rgba(40, 40, 40, 0.8);
+    color: #f5f5f7;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: #0071e3;
+    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.2);
+}
+
+button {
+    background: #0071e3;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 25px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #0077ED;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0, 113, 227, 0.3);
+}
+
+button:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.error-message {
+    background: rgba(216, 81, 64, 0.1);
+    color: #ff453a;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 69, 58, 0.2);
+}
+
+#video-info {
+    background: rgba(40, 40, 40, 0.8);
+    border-radius: 18px;
+    padding: 30px;
+    margin-top: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-preview img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.formats-table th {
+    color: #86868b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.formats-table td {
+    color: #f5f5f7;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.download-progress {
+    background: rgba(40, 40, 40, 0.8);
+    border-radius: 18px;
+    padding: 30px;
+    margin-top: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.progress {
+    background: linear-gradient(90deg, #0071e3, #00c7be);
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.progress-info {
+    color: #a1a1a6;
+}
+
+.formats-table td:last-child {
+    text-align: right;
+}
+
+.formats-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.formats-table th:last-child,
+.formats-table td:last-child {
+    text-align: right;
+    padding-right: 0;
+}
+
+.download-btn {
+    background: #0071e3;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 100px;
+    display: inline-block;
+    text-align: center;
+}

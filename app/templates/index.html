@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>YouTube Video Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Video Downloader</h1>
+        
+        <!-- Removing instructions block -->
+        
+        <div class="input-section">
+            <input type="text" id="url" placeholder="Paste YouTube video URL" required>
+            <button id="get-formats">Get Formats</button>
+        </div>
+    
+        <div id="loading" style="display: none;">
+            <p>Loading video information...</p>
+        </div>
+    
+        <div id="error-message" class="error-message" style="display: none;"></div>
+    
+        <script>
+            $(document).ready(function() {
+                $('#get-formats').click(function() {
+                    const url = $('#url').val();
+                    if (!url) {
+                        showError('Error getting video information');
+                        return;
+                    }
+    
+                    // Show loading indicator
+                    $(this).prop('disabled', true).text('Loading...');
+                    hideError();
+                    $('#video-info').hide();
+                    $('#loading').show();
+    
+                    $.ajax({
+                        url: '/get_formats',
+                        method: 'POST',
+                        data: { url: url },
+                        success: function(response) {
+                            if (response.error) {
+                                showError(response.error);
+                                return;
+                            }
+    
+                            // Show information about video
+                            $('#video-title').text(response.title);
+                            $('#thumbnail').attr('src', response.thumbnail);
+                            $('#video-duration').text(formatDuration(response.duration));
+                            
+                            // Fill table with formats
+                            const formatsList = $('#formats-list');
+                            formatsList.empty();
+                            
+                            response.formats.forEach(function(format) {
+                                const row = $('<tr>');
+                                row.append($('<td>').text(format.quality || format.format_note));
+                                row.append($('<td>').text(format.resolution));
+                                row.append($('<td>').text(format.ext.toUpperCase()));
+                                row.append($('<td>').text(format.filesize));
+                                
+                                const downloadBtn = createDownloadButton(url, format.format_id);
+                                
+                                row.append($('<td>').append(downloadBtn));
+                                formatsList.append(row);
+                            });
+    
+                            $('#video-info').show();
+                            $('#loading').hide();
+                        },
+                        error: function(xhr) {
+                            showError('Ошибка при получении информации о видео');
+                        },
+                        complete: function() {
+                            // Reset button state
+                            $('#get-formats').prop('disabled', false).text('Получить форматы');
+                        }
+                    });
+                });
+            });
+        
+            function createDownloadButton(url, format) {
+                return $('<button>')
+                    .text('Download')
+                    .addClass('download-btn')
+                    .click(function() {
+                        downloadVideo(url, format);
+                    });
+            }
+        </script>
+    
+        <div id="video-info" style="display: none;">
+            <div class="video-preview">
+                <img id="thumbnail" src="" alt="Video thumbnail">
+                <h2 id="video-title"></h2>
+                <p id="video-duration"></p>
+            </div>
+            
+            <div class="formats-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Quality</th>
+                            <th>Resolution</th>
+                            <th>Format</th>
+                            <th>Size</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="formats-list">
+                        <!-- Formats will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    
+        <div id="downloadProgress" style="display: none;" class="download-progress">
+            <h3>Downloading Video</h3>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <div class="progress-info">
+                    <p>Progress: <span id="progressPercent">0%</span></p>
+                    <p>Speed: <span id="downloadSpeed">-</span></p>
+                    <p>Time remaining: <span id="timeRemaining">-</span></p>
+                    <p>Downloaded: <span id="downloadedSize">-</span> of <span id="totalSize">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentVideoId = null;
+        let progressInterval = null;
+    
+        function formatDuration(seconds) {
+            if (!seconds) return "Unknown duration";
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+            }
+            return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+        }
+    
+        $(document).ready(function() {
+            $('#get-formats').click(function() {
+                const url = $('#url').val();
+                if (!url) {
+                    showError('Please enter video URL');
+                    return;
+                }
+    
+                // Show loading indicator
+                $(this).prop('disabled', true).text('Loading...');
+                hideError();
+                $('#video-info').hide();
+                $('#loading').show();
+    
+                $.ajax({
+                    url: '/get_formats',
+                    method: 'POST',
+                    data: { url: url },
+                    success: function(response) {
+                        if (response.error) {
+                            showError(response.error);
+                            return;
+                        }
+    
+                        // Show information about video
+                        $('#video-title').text(response.title);
+                        $('#thumbnail').attr('src', response.thumbnail);
+                        $('#video-duration').text(formatDuration(response.duration));
+                        
+                        // Fill table with formats
+                        const formatsList = $('#formats-list');
+                        formatsList.empty();
+                        
+                        response.formats.forEach(function(format) {
+                            const row = $('<tr>');
+                            row.append($('<td>').text(format.quality || format.format_note));
+                            row.append($('<td>').text(format.resolution));
+                            row.append($('<td>').text(format.ext.toUpperCase()));
+                            row.append($('<td>').text(format.filesize));
+                            
+                            const downloadBtn = createDownloadButton(url, format.format_id);
+                            
+                            row.append($('<td>').append(downloadBtn));
+                            formatsList.append(row);
+                        });
+    
+                        $('#video-info').show();
+                        $('#loading').hide();
+                    },
+                    error: function(xhr) {
+                        showError('Error getting video information');
+                    },
+                    complete: function() {
+                        // Reset button state
+                        $('#get-formats').prop('disabled', false).text('Get Formats');
+                    }
+                });
+            });
+        });
+    
+        function updateProgress() {
+            if (!currentVideoId) return;
+            
+            fetch(`/progress/${currentVideoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'not_found') return;
+    
+                    const progressDiv = $('#downloadProgress');
+                    progressDiv.show();
+    
+                    if (data.status === 'downloading') {
+                        $('#progressBar').css('width', `${data.progress}%`);
+                        $('#progressPercent').text(`${data.progress}%`);
+                        $('#downloadSpeed').text(data.speed);
+                        $('#timeRemaining').text(data.eta);
+                        $('#downloadedSize').text(data.downloaded);
+                        $('#totalSize').text(data.size);
+                    } else if (data.status === 'finished') {
+                        $('#progressBar').css('width', '100%');
+                        $('#progressPercent').text('100%');
+                        clearInterval(progressInterval);
+                        setTimeout(() => {
+                            progressDiv.hide();
+                        }, 3000);
+                    } else if (data.status === 'error') {
+                        clearInterval(progressInterval);
+                        showError(`Download error: ${data.error}`);
+                        progressDiv.hide();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching progress:', error);
+                });
+        }
+    
+        function downloadVideo(url, format) {
+            // Get video ID from URL
+            currentVideoId = url.split('v=').pop().split('&')[0];
+            
+            // Show progress bar
+            $('#downloadProgress').show();
+            $('#progressBar').css('width', '0%');
+            $('#progressPercent').text('0%');
+            $('#downloadSpeed').text('-');
+            $('#timeRemaining').text('-');
+            $('#downloadedSize').text('-');
+            $('#totalSize').text('-');
+            
+            // Start progress tracking
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            progressInterval = setInterval(updateProgress, 1000);
+    
+            // Send AJAX request for download
+            $.ajax({
+                url: '/download',
+                method: 'POST',
+                data: {
+                    url: url,
+                    format: format
+                },
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(response, status, xhr) {
+                    // Create download link
+                    const blob = new Blob([response], { type: xhr.getResponseHeader('Content-Type') });
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const filename = xhr.getResponseHeader('Content-Disposition')?.split('filename=')[1] || 'video.mp4';
+                    
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = filename.replace(/["']/g, '');
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    document.body.removeChild(a);
+                    
+                    // Clear interval after successful download
+                    clearInterval(progressInterval);
+                },
+                error: function(xhr) {
+                    clearInterval(progressInterval);
+                    let errorMessage = 'Error downloading video';
+                    try {
+                        errorMessage = xhr.responseText || errorMessage;
+                    } catch (e) {}
+                    showError(errorMessage);
+                    $('#downloadProgress').hide();
+                }
+            });
+        }
+    
+        function showError(message) {
+            $('#error-message')
+                .text(message)
+                .show();
+        }
+    
+        function hideError() {
+            $('#error-message').hide();
+        }
+    </script>
+</body>
+</html>
